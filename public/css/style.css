@@ -1,0 +1,73 @@
+/* Общие стили для тем */
+body.light-mode {
+    background-color: #f8f9fa;
+    color: #717171;
+}
+body.dark-mode {
+    background-color: #000000;
+    color: #fff;
+}
+/* Стили формы */
+.registration-form {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    border-radius: 8px;
+}
+body.light-mode .registration-form {
+    background: #fff;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+body.dark-mode .registration-form {
+    background: #212529;
+    box-shadow: 0 0 10px rgb(0, 0, 0);
+}
+/* Кнопка переключения темы */
+.btn-sm {
+    width: 40px;
+    height: 40px;
+}
+.btn:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+.theme-indicator {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #000;
+    transition: background-color 0.3s ease;
+}
+.dark-mode .theme-indicator {
+    background-color: #fff;
+}
+/* Кастомные кнопки */
+.btn-custom {
+    transition: all 0.3s ease;
+    font-weight: 500;
+    padding: 4px 16px; /* Унифицированный padding */
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+.btn-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgb(14, 255, 191);
+}
+/* Унифицированные стили для всех кнопок */
+.btn-primary {
+    background-color: #0d6efd; /* Синий фон в светлой теме */
+    color: #fff; /* Белый текст */
+    border: none;
+}
+.btn-primary:hover {
+    background-color: #0a58ca; /* Темнее при наведении */
+    color: #fff;
+}
+/* Цвет текста и фона в тёмной теме */
+body.dark-mode .btn-primary {
+    background-color: #0d6efd; /* Тот же синий в тёмной теме */
+    color: #fff;
+}
+body.dark-mode .btn-primary:hover {
+    background-color: #0a58ca;
+    color: #fff;
+}

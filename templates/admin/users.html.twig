@@ -1,0 +1,144 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Панель администратора - Управление пользователями{% endblock %}
+
+{% block body %}
+    <div class="container my-5">
+        <h1>Управление пользователями</h1>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Имя</th>
+                <th>Email</th>
+                <th>Роль</th>
+                <th>Действия</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for user in users %}
+                <tr data-user-id="{{ user.id }}">
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.getRoles()[0]|default('ROLE_USER') }}</td>
+                    <td>
+                        <button class="btn btn-sm btn-{% if user.getRoles()[0] == 'ROLE_BLOCKED' %}success{% else %}danger{% endif %}"
+                                onclick="toggleBlock({{ user.id }})"
+                                data-user-id="{{ user.id }}"
+                                data-csrf-token="{{ csrf_token('toggle_block_' ~ user.id) }}"
+                                data-current-role="{{ user.getRoles()[0]|default('ROLE_USER') }}">
+                            {% if user.getRoles()[0] == 'ROLE_BLOCKED' %}Разблокировать{% else %}Заблокировать{% endif %}
+                        </button>
+                        <button class="btn btn-sm btn-{% if user.isAdmin() %}danger{% else %}success{% endif %} mt-1"
+                                onclick="toggleAdmin({{ user.id }})"
+                                data-user-id="{{ user.id }}"
+                                data-csrf-token="{{ csrf_token('toggle_admin_' ~ user.id) }}">
+                            {% if user.isAdmin() %}Удалить роль администратора{% else %}Сделать администратором{% endif %}
+                        </button>
+                        <button class="btn btn-sm btn-danger mt-1"
+                                onclick="deleteUser({{ user.id }})"
+                                data-user-id="{{ user.id }}"
+                                data-csrf-token="{{ csrf_token('delete_user_' ~ user.id) }}">
+                            Удалить
+                        </button>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function toggleBlock(userId) {
+            const csrfToken = document.querySelector(`[data-user-id="${userId}"][data-csrf-token]`).getAttribute('data-csrf-token');
+            const button = document.querySelector(`[data-user-id="${userId}"][onclick="toggleBlock(${userId})"]`);
+            const currentRole = button.getAttribute('data-current-role');
+
+            fetch(`/admin/user/${userId}/toggle-block`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(errorData => {
+                            throw new Error(errorData.message || `HTTP error! Status: ${response.status}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        const newRole = data.role; // Получаем новую роль из ответа сервера
+                        button.textContent = newRole === 'ROLE_BLOCKED' ? 'Разблокировать' : 'Заблокировать';
+                        button.classList.remove(newRole === 'ROLE_BLOCKED' ? 'danger' : 'success');
+                        button.classList.add(newRole === 'ROLE_BLOCKED' ? 'success' : 'danger');
+                        button.setAttribute('data-current-role', newRole); // Обновляем атрибут роли
+
+                        // Обновляем роль в таблице
+                        const roleCell = document.querySelector(`tr[data-user-id="${userId}"] td:nth-child(4)`);
+                        roleCell.textContent = newRole;
+                    } else {
+                        alert(data.message || 'Ошибка при изменении состояния');
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                    alert(error.message || 'Произошла ошибка при изменении состояния');
+                });
+        }
+
+        function toggleAdmin(userId) {
+            const csrfToken = document.querySelector(`[data-user-id="${userId}"][data-csrf-token]`).getAttribute('data-csrf-token');
+            fetch(`/admin/user/${userId}/toggle-admin`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (data.redirect) {
+                            alert('Вы лишились роли администратора и будете перенаправлены на главную страницу.');
+                            window.location.href = '{{ path('app_home') }}';
+                        } else {
+                            location.reload(); // Можно оставить перезагрузку для простоты
+                        }
+                    } else {
+                        alert(data.message || 'Ошибка при изменении роли');
+                    }
+                })
+                .catch(error => console.error('Ошибка:', error));
+        }
+
+        function deleteUser(userId) {
+            if (!confirm('Вы уверены, что хотите удалить этого пользователя?')) return;
+
+            const csrfToken = document.querySelector(`[data-user-id="${userId}"][data-csrf-token]`).getAttribute('data-csrf-token');
+            fetch(`/admin/user/${userId}/delete`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.querySelector(`tr[data-user-id="${userId}"]`).remove();
+                    } else {
+                        alert(data.message || 'Ошибка при удалении пользователя');
+                    }
+                })
+                .catch(error => console.error('Ошибка:', error));
+        }
+    </script>
+{% endblock %}

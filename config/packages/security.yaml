@@ -1,0 +1,38 @@
+security:
+  password_hashers:
+    Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+  providers:
+    app_user_provider:
+      entity:
+        class: App\Entity\Registration
+        property: email
+  firewalls:
+    dev:
+      pattern: ^/(_(profiler|wdt)|css|images|js)/
+      security: false
+    main:
+      lazy: true
+      provider: app_user_provider
+      user_checker: App\Security\UserChecker  # Указываем UserChecker для этого фаервола
+      form_login:
+        login_path: app_login
+        check_path: app_login
+        default_target_path: app_home
+        username_parameter: email
+        password_parameter: password
+        enable_csrf: true
+        csrf_token_id: login
+      logout:
+        path: app_logout
+        target: app_home
+        csrf_token_id: logout
+  access_control:
+    - { path: ^/authentication/registration, roles: PUBLIC_ACCESS }
+    - { path: ^/login, roles: PUBLIC_ACCESS }
+    - { path: ^/home, roles: PUBLIC_ACCESS }
+    - { path: ^/survey/new, roles: [ROLE_USER, ROLE_ADMIN] }
+    - { path: ^/survey/all, roles: [ROLE_USER, ROLE_ADMIN] }
+    - { path: ^/template, roles: [ROLE_USER, ROLE_ADMIN] }
+    - { path: ^/admin, roles: ROLE_ADMIN }
+  role_hierarchy:
+    ROLE_ADMIN: ROLE_USER

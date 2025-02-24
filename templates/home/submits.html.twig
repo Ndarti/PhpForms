@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Заполненные формы для {{ template.name }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+</head>
+<body class="light-mode">
+<header>
+    <button class="btn btn-sm theme-toggle" onclick="toggleTheme()" aria-label="Переключить темный режим">
+        <div class="theme-indicator"></div>
+    </button>
+</header>
+<div class="container my-5">
+    <h1>Заполненные формы для {{ template.name }}</h1>
+    <a href="{{ path('survey_template_show', {'id': template.id}) }}" class="btn btn-secondary mb-3">Вернуться к шаблону</a>
+
+    {% if groupedSubmissions is empty %}
+        <p class="text-muted">Пока нет заполненных форм для этого шаблона.</p>
+    {% else %}
+        {% for group in groupedSubmissions %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Пользователь: {{ group.user.name }}</h5>
+                    <small class="text-muted">Дата отправки: {{ group.answers[0].submittedAt|date('d.m.Y H:i') }}</small>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for submission in group.answers %}
+                            <li class="list-group-item">
+                                <strong>{{ submission.question.title }}:</strong>
+                                {% if submission.question.type == 'checkbox' %}
+                                    {{ submission.answer|split(',')|join(', ') }}
+                                {% else %}
+                                    {{ submission.answer }}
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
+</body>
+</html>

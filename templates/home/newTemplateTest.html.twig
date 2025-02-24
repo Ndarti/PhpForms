@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Редактирование вопросов для {{ template.name }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+</head>
+<body class="light-mode">
+<script src="{{ asset('js/script.js') }}"></script>
+
+<header>
+    <button class="btn btn-sm theme-toggle" onclick="toggleTheme()" aria-label="Переключить темный режим">
+        <div class="theme-indicator"></div>
+    </button>
+</header>
+<div class="container my-5">
+    <h1>Редактирование вопросов для {{ template.name }}</h1>
+    <form method="post" action="{{ path('survey_template_add_questions', {'id': template.id}) }}">
+        <div id="questions-container" class="mb-3">
+            {# Отображение существующих вопросов #}
+            {% for question in template.questions %}
+                <div class="question mb-3 p-3 border">
+                    <input type="hidden" name="questions[{{ loop.index0 }}][id]" value="{{ question.id }}">
+                    <select name="questions[{{ loop.index0 }}][type]" class="form-select mb-2">
+                        <option value="text" {{ question.type == 'text' ? 'selected' : '' }}>Однострочный текст</option>
+                        <option value="textarea" {{ question.type == 'textarea' ? 'selected' : '' }}>Многострочный текст</option>
+                        <option value="integer" {{ question.type == 'integer' ? 'selected' : '' }}>Целое число</option>
+                        <option value="checkbox" {{ question.type == 'checkbox' ? 'selected' : '' }}>Флажок</option>
+                    </select>
+                    <input type="text" name="questions[{{ loop.index0 }}][title]" class="form-control mb-2" placeholder="Заголовок" value="{{ question.title }}" required>
+                    <textarea name="questions[{{ loop.index0 }}][description]" class="form-control mb-2" placeholder="Описание (для checkbox укажите варианты через запятую, например: Да, Нет)">{{ question.description }}</textarea>
+                    <div class="form-check">
+                        <input type="checkbox" name="questions[{{ loop.index0 }}][showInTable]" class="form-check-input" {{ question.isShowInTable ? 'checked' : '' }}>
+                        <label class="form-check-label">Показывать в таблице</label>
+                    </div>
+                    <button type="button" class="btn btn-danger btn-sm remove-question" style="width: 87px;">Удалить</button>
+                </div>
+            {% endfor %}
+        </div>
+        <button type="button" id="add-question" class="btn btn-secondary">Добавить вопрос</button>
+        <button type="submit" class="btn btn-success">Сохранить</button>
+    </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+<script>
+    const typeLimits = { text: 4, textarea: 4, integer: 4, checkbox: 4 };
+
+    document.getElementById('add-question').addEventListener('click', function() {
+        const container = document.getElementById('questions-container');
+        const questionDiv = document.createElement('div');
+        questionDiv.className = 'question mb-3 p-3 border';
+
+        const index = container.children.length;
+
+        questionDiv.innerHTML = `
+            <input type="hidden" name="questions[${index}][id]" value="">
+            <select name="questions[${index}][type]" class="form-select mb-2">
+                <option value="text">Однострочный текст</option>
+                <option value="textarea">Многострочный текст</option>
+                <option value="integer">Целое число</option>
+                <option value="checkbox">Флажок</option>
+            </select>
+            <input type="text" name="questions[${index}][title]" class="form-control mb-2" placeholder="Заголовок" required>
+            <textarea name="questions[${index}][description]" class="form-control mb-2" placeholder="Описание (для checkbox укажите варианты через запятую, например: Да, Нет)"></textarea>
+            <div class="form-check">
+                <input type="checkbox" name="questions[${index}][showInTable]" class="form-check-input" checked>
+                <label class="form-check-label">Показывать в таблице</label>
+            </div>
+            <button type="button" class="btn btn-danger btn-sm remove-question">Удалить</button>
+        `;
+
+        const select = questionDiv.querySelector('select');
+        select.addEventListener('change', function() {
+            const type = this.value;
+            const currentCount = Array.from(container.querySelectorAll('select')).filter(s => s.value === type).length;
+            if (currentCount > typeLimits[type]) {
+                alert(`Достигнут лимит для типа "${type}" (${typeLimits[type]})`);
+                this.value = 'text';
+            }
+        });
+
+        questionDiv.querySelector('.remove-question').addEventListener('click', function() {
+            questionDiv.remove();
+        });
+
+        container.appendChild(questionDiv);
+    });
+
+    // Инициализация Sortable для перетаскивания
+    Sortable.create(document.getElementById('questions-container'), {
+        animation: 150,
+        onEnd: function(evt) {
+            const questions = document.querySelectorAll('.question');
+            questions.forEach((question, index) => {
+                question.querySelector('input[type="hidden"]').name = `questions[${index}][id]`;
+                question.querySelector('select').name = `questions[${index}][type]`;
+                question.querySelector('input[type="text"]').name = `questions[${index}][title]`;
+                question.querySelector('textarea').name = `questions[${index}][description]`;
+                question.querySelector('input[type="checkbox"]').name = `questions[${index}][showInTable]`;
+            });
+        }
+    });
+
+    // Удаление существующих вопросов из интерфейса
+    document.querySelectorAll('.remove-question').forEach(button => {
+        button.addEventListener('click', function() {
+            this.closest('.question').remove();
+        });
+    });
+</script>
+</body>
+</html>

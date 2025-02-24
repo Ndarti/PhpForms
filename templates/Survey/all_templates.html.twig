@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Все шаблоны{% endblock %}
+
+{% block body %}
+    <div class="container my-5">
+        <h1>Все шаблоны</h1>
+        <a href="{{ path('app_home') }}" class="btn btn-secondary mb-3">Назад</a>
+        {% if templates is not empty %}
+            <div class="row">
+                {% for template in templates %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body position-relative">
+                                <h5 class="card-title">{{ template.name|default('Без названия') }}</h5>
+                                <p class="card-text">
+                                    Автор: {{ template.author ? template.author.email|default('Аноним') : 'Аноним' }}<br>
+                                    Создан: {{ template.createdAt|date('d.m.Y')|default('Не указано') }}
+                                </p>
+                                <a href="{{ path('survey_template_show', {'id': template.id|number_format(0, '', '')}) }}" class="btn btn-outline-primary">Просмотреть</a>
+
+                                {% if app.user and is_granted('ROLE_ADMIN') %}
+                                    <span class="delete-btn"
+                                          data-template-id="{{ template.id }}"
+                                          data-csrf-token="{{ csrf_token('delete_' ~ template.id) }}"
+                                          onclick="deleteTemplate(this)"
+                                          title="Удалить шаблон">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" class="delete-icon">
+                                            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" stroke="#666" stroke-width="2" fill="none"/>
+                                        </svg>
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-muted">Шаблоны отсутствуют.</p>
+        {% endif %}
+    </div>
+{% endblock %}
