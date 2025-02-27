@@ -12,6 +12,7 @@
                 <th>Имя</th>
                 <th>Email</th>
                 <th>Роль</th>
+                <th>Дата обновления</th>
                 <th>Действия</th>
             </tr>
             </thead>
@@ -22,6 +23,7 @@
                     <td>{{ user.name }}</td>
                     <td>{{ user.email }}</td>
                     <td>{{ user.getRoles()[0]|default('ROLE_USER') }}</td>
+                    <td>{{ user.updatedAt ? user.updatedAt|date('Y-m-d H:i:s') : 'Никогда' }}</td>
                     <td>
                         <button class="btn btn-sm btn-{% if user.getRoles()[0] == 'ROLE_BLOCKED' %}success{% else %}danger{% endif %}"
                                 onclick="toggleBlock({{ user.id }})"
@@ -73,15 +75,19 @@
                 })
                 .then(data => {
                     if (data.success) {
-                        const newRole = data.role; // Получаем новую роль из ответа сервера
+                        const newRole = data.role;
                         button.textContent = newRole === 'ROLE_BLOCKED' ? 'Разблокировать' : 'Заблокировать';
-                        button.classList.remove(newRole === 'ROLE_BLOCKED' ? 'danger' : 'success');
-                        button.classList.add(newRole === 'ROLE_BLOCKED' ? 'success' : 'danger');
-                        button.setAttribute('data-current-role', newRole); // Обновляем атрибут роли
+                        button.classList.remove(newRole === 'ROLE_BLOCKED' ? 'btn-danger' : 'btn-success');
+                        button.classList.add(newRole === 'ROLE_BLOCKED' ? 'btn-success' : 'btn-danger');
+                        button.setAttribute('data-current-role', newRole);
 
                         // Обновляем роль в таблице
                         const roleCell = document.querySelector(`tr[data-user-id="${userId}"] td:nth-child(4)`);
                         roleCell.textContent = newRole;
+
+                        // Обновляем дату в таблице
+                        const updatedAtCell = document.querySelector(`tr[data-user-id="${userId}"] td:nth-child(5)`);
+                        updatedAtCell.textContent = data.updatedAt;
                     } else {
                         alert(data.message || 'Ошибка при изменении состояния');
                     }
@@ -109,7 +115,16 @@
                             alert('Вы лишились роли администратора и будете перенаправлены на главную страницу.');
                             window.location.href = '{{ path('app_home') }}';
                         } else {
-                            location.reload(); // Можно оставить перезагрузку для простоты
+                            // Обновляем дату и роль при необходимости без перезагрузки
+                            const roleCell = document.querySelector(`tr[data-user-id="${userId}"] td:nth-child(4)`);
+                            const updatedAtCell = document.querySelector(`tr[data-user-id="${userId}"] td:nth-child(5)`);
+                            roleCell.textContent = data.role;
+                            updatedAtCell.textContent = data.updatedAt;
+
+                            const button = document.querySelector(`[data-user-id="${userId}"][onclick="toggleAdmin(${userId})"]`);
+                            button.textContent = data.role === 'ROLE_ADMIN' ? 'Удалить роль администратора' : 'Сделать администратором';
+                            button.classList.remove(data.role === 'ROLE_ADMIN' ? 'btn-success' : 'btn-danger');
+                            button.classList.add(data.role === 'ROLE_ADMIN' ? 'btn-danger' : 'btn-success');
                         }
                     } else {
                         alert(data.message || 'Ошибка при изменении роли');
@@ -140,5 +155,4 @@
                 })
                 .catch(error => console.error('Ошибка:', error));
         }
-    </script>
-{% endblock %}
+    </script>{% endblock %}
