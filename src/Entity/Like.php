@@ -14,9 +14,9 @@ class Like
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: Registration::class)]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'user_id', nullable: false)]
-    private ?Registration $user = null;
+    private ?User $user = null;
 
     #[ORM\ManyToOne(targetEntity: Template::class, inversedBy: 'likes')]
     #[ORM\JoinColumn(name: 'template_id', nullable: false)]
@@ -27,12 +27,12 @@ class Like
         return $this->id;
     }
 
-    public function getUser(): ?Registration
+    public function getUser(): ?User
     {
         return $this->user;
     }
 
-    public function setUser(?Registration $user): self
+    public function setUser(?User $user): self
     {
         $this->user = $user;
         return $this;

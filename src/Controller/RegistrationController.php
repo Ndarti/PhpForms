@@ -2,7 +2,7 @@
 // src/Controller/RegistrationController.php
 namespace App\Controller;
 
-use App\Entity\Registration;
+use App\Entity\User;
 use App\Form\RegistrationFormType;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -29,7 +29,7 @@ class RegistrationController extends AbstractController
         TokenStorageInterface $tokenStorage,
         SessionInterface $session
     ): Response {
-        $user = new Registration();
+        $user = new User();
         $user->setCreatedAt(new \DateTimeImmutable());
 
         $form = $this->createForm(RegistrationFormType::class, $user);

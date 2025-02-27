@@ -22,9 +22,9 @@ class Template
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $description = null;
 
-    #[ORM\ManyToOne(targetEntity: Registration::class)]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Registration $author = null;
+    private ?User $author = null;
 
     #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $createdAt = null;
@@ -61,8 +61,8 @@ class Template
     public function setName(string $name): self { $this->name = $name; return $this; }
     public function getDescription(): ?string { return $this->description; }
     public function setDescription(?string $description): self { $this->description = $description; return $this; }
-    public function getAuthor(): ?Registration { return $this->author; }
-    public function setAuthor(?Registration $author): self { $this->author = $author; return $this; }
+    public function getAuthor(): ?User { return $this->author; }
+    public function setAuthor(?User $author): self { $this->author = $author; return $this; }
     public function getCreatedAt(): ?\DateTimeInterface { return $this->createdAt; }
     public function setCreatedAt(\DateTimeInterface $createdAt): self { $this->createdAt = $createdAt; return $this; }
     public function getStatus(): string { return $this->status; }

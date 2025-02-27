@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
-use App\Entity\Registration;
+use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use League\OAuth2\Client\Provider\GoogleUser;
@@ -45,13 +45,13 @@ class SecurityController extends AbstractController
             $logger->info('Google User Class: ' . get_class($googleUser));
             $logger->info('Google User Data: ' . json_encode($googleUser));
 
-            $existingUser = $entityManager->getRepository(Registration::class)->findOneBy(['email' => $googleUser->getEmail()]);
+            $existingUser = $entityManager->getRepository(User::class)->findOneBy(['email' => $googleUser->getEmail()]);
 
             if ($existingUser) {
                 $user = $existingUser;
                 $this->addFlash('success', 'Вы успешно вошли через Google!');
             } else {
-                $user = new Registration();
+                $user = new User();
                 $user->setEmail($googleUser->getEmail());
                 $user->setName($googleUser->getName() ?? 'User');
                 $user->setCreatedAt(new \DateTimeImmutable());
@@ -96,7 +96,7 @@ class SecurityController extends AbstractController
             if (!$email || !$password) {
                 $error = 'Пожалуйста, заполните все поля.';
             } else {
-                $user = $entityManager->getRepository(Registration::class)->findOneBy(['email' => $email]);
+                $user = $entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
 
                 if ($user) {
                     if ($passwordHasher->isPasswordValid($user, $password)) {

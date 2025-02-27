@@ -16,9 +16,9 @@ class Comment
     #[ORM\Column(type: 'text')]
     private ?string $content = null;
 
-    #[ORM\ManyToOne(targetEntity: Registration::class)]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Registration $name = null;
+    private ?User $name = null;
 
     #[ORM\ManyToOne(targetEntity: Template::class, inversedBy: 'comments')]
     #[ORM\JoinColumn(nullable: false)]
@@ -48,12 +48,12 @@ class Comment
         return $this;
     }
 
-    public function getName(): ?Registration
+    public function getName(): ?User
     {
         return $this->name;
     }
 
-    public function setName(?Registration $author): self
+    public function setName(?User $author): self
     {
         $this->name = $author;
         return $this;

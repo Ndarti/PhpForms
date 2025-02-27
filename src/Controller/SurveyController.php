@@ -3,7 +3,7 @@ namespace App\Controller;
 
 use App\Entity\FormSubmission;
 use App\Entity\Question;
-use App\Entity\Registration;
+use App\Entity\User;
 use App\Entity\Template;
 use App\Repository\TemplateRepository;
 use Doctrine\ORM\EntityManagerInterface;

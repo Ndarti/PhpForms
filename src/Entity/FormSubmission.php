@@ -20,9 +20,9 @@ class FormSubmission
     #[ORM\JoinColumn(nullable: false)]
     private ?Question $question = null;
 
-    #[ORM\ManyToOne(targetEntity: Registration::class)]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Registration $user = null;
+    private ?User $user = null;
 
     #[ORM\Column(type: 'text')]
     private string $answer;
@@ -38,8 +38,8 @@ class FormSubmission
     public function getQuestion(): ?Question { return $this->question; }
     public function setQuestion(?Question $question): self { $this->question = $question; return $this; }
 
-    public function getUser(): ?Registration { return $this->user; }
-    public function setUser(?Registration $user): self { $this->user = $user; return $this; }
+    public function getUser(): ?User { return $this->user; }
+    public function setUser(?User $user): self { $this->user = $user; return $this; }
 
     public function getAnswer(): string { return $this->answer; }
     public function setAnswer(string $answer): self { $this->answer = $answer; return $this; }

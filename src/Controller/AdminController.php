@@ -1,7 +1,7 @@
 <?php
 namespace App\Controller;
 
-use App\Entity\Registration;
+use App\Entity\User;
 use App\Repository\RegistrationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
